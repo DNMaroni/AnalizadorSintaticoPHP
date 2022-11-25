@@ -33,7 +33,7 @@
     </head>
     <body>
 
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50rem;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50vw;">
             <h1 style="text-align: center">Analizador sintático/semântico</h1>
 
             <div style="height: 2rem; width: 100%; display: inline-block"></div>
@@ -64,6 +64,10 @@
     }
     ?>
             </form>
+
+            <div style="height: 2rem; width: 100%; display: inline-block"></div>
+            
+            <p style="text-align: center; font-size: 14px;">Desenvolvido por Daniel M (169481@upf.br)</p>
         </div>
 
     </body>
