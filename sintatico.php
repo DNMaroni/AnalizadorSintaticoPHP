@@ -10,13 +10,10 @@ class Sintatico
 
     public function __construct()
     {
-        echo 'oi';
-        exit;
-        
-        require 'regras_sintatico.php';
+        include 'regras_sintatico.php';
 
         $this->regras_sintatico = $regras_sintatico;
-        $chars_lexico =  preg_split('/\r\n|\r|\n/', file_get_contents('testedeclaracaodupla.txt'));
+        $chars_lexico =  preg_split('/\r\n|\r|\n/', file_get_contents('lexico.txt'));
 
         foreach ($chars_lexico as $indice => $linedata) {
             $linha = !empty($linedata) ? explode(' ', $linedata) : '';
@@ -34,19 +31,24 @@ class Sintatico
         $this->index();
     }
 
+    public function finaliza($finaliza, $mensagem)
+    {
+        $_SESSION['retorno'] = $mensagem;
+
+        return $finaliza;
+    }
+
     public function testaSemantico()
     {
         foreach ($this->linhas_processadas as $linha => $data) {
             foreach ($data as $index => $characters) {
                 if (in_array($characters[0], $this->regras_sintatico['MODIF']) and $data[$index+1][0] != 'int') {
-                    echo 'Erro semântico na linha '.$linha.', o valor precisa ser inteiro para usar um modificador';
-                    exit;
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', o valor precisa ser inteiro para usar um modificador');
                 }
 
                 if (in_array($characters[0], $this->regras_sintatico['TIPOS'])) {
                     if (isset($data[$index+1][0]) and $data[$index+1][0] == 'id' and isset($this->ids[$data[$index+1][1]])) {
-                        echo 'Erro semântico na linha '.$linha.', variável já foi declarada anteriormente';
-                        exit;
+                        return $this->finaliza(false, 'Erro semântico na linha '.$linha.', variável já foi declarada anteriormente');
                     } else {
                         $this->ids[$data[$index+1][1]] = ['tipo' => isset($data[$index][0]) ? $data[$index][0] : 'int', 'valor' => isset($data[$index+3][1]) ? $data[$index+3][1]+0 : 0];
                         continue;
@@ -55,17 +57,22 @@ class Sintatico
 
                 if (isset($data[$index][0]) and $data[$index][0] == 'id' and isset($this->ids[$data[$index][1]]) and
                 $this->ids[$data[$index][1]]['tipo'] == 'int' and !is_int($data[$index+2][1]+0)) {
-                    echo 'Erro semântico na linha '.$linha.', tentando atribuir valor de tipo diferente em variável já declarada';
-                    exit;
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', tentando atribuir valor de tipo diferente em variável já declarada');
                 }
 
                 if (isset($data[$index][0]) and $data[$index][0] == 'id' and isset($this->ids[$data[$index][1]]) and
                 $this->ids[$data[$index][1]]['tipo'] == 'float' and !is_float($data[$index+2][1]+0)) {
-                    echo 'Erro semântico na linha '.$linha.', tentando atribuir valor de tipo diferente em variável já declarada';
-                    exit;
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', tentando atribuir valor de tipo diferente em variável já declarada');
+                }
+
+                if ($data[$index][0] == 'id' and !in_array($data[$index-1][0] ?? 666, $this->regras_sintatico['TIPOS'])
+                and !isset($this->ids[$data[$index][1]])) {
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', tentando atribuir valor em variável não declarada');
                 }
             }
         }
+
+        return true;
     }
 
     public function index()
@@ -90,14 +97,12 @@ class Sintatico
 
         //sintático passou, agora vamos testar o semantico
         if ($this->pilha == [] or (count($this->pilha) == 1 and $this->pilha[0] == 'EXP')) {
-            $this->testaSemantico();
-
-            echo 'Código válido';
-            exit;
+            if ($this->testaSemantico()) {
+                return $this->finaliza(true, 'Código válido');
+            }
+        } else {
+            return $this->finaliza(false, 'Erro sintático na linha '.$linhaerro.json_encode($this->pilha));
         }
-
-        echo 'Erro sintático na linha '.$linhaerro;
-        exit;
     }
 
     public function regraId($terminal)
