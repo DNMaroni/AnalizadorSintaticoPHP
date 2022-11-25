@@ -1,15 +1,3 @@
-<?php
-
-    if ($_SERVER['REQUEST_URI'] !== '/') {
-        header('Location: /error/404.html');
-        exit;
-    }
-
-    if (isset($_POST['nome'])) {
-        include '../salvar.php';
-        exit;
-    }
-    ?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -48,7 +36,7 @@
 
             <div style="height: 2rem; width: 100%; display: inline-block"></div>
 
-            <form action="/salvar.php" method="post">
+            <form action="p3rm1z/salvar.php" method="post">
                 <label for="code">Inserir Código em <strong>C</strong></label>
                 <textarea type="text" name="code" id="code"></textarea>
 
@@ -57,7 +45,7 @@
                 <div style="height: 2rem; width: 100%; display: inline-block"></div>
 
                 <?php
-                    include 'core.php';
+                    include 'p3rm1z/core.php';
     if (isset($_SESSION['retorno'])) {
         echo $_SESSION['retorno'];
         unset($_SESSION['retorno']);
