@@ -33,7 +33,7 @@ class Sintatico
 
     public function finaliza($finaliza, $mensagem)
     {
-        $_SESSION['retorno'] = $mensagem;
+        $_SESSION['retorno'] = $finaliza ? '<p style="color: green; font-size: 1.5rem;">'.$mensagem.'</p>' : '<p style="color: red; font-size: 1.5rem;">'.$mensagem.'</p>';
 
         return $finaliza;
     }
@@ -67,8 +67,14 @@ class Sintatico
 
                 if ($data[$index][0] == 'id' and !in_array($data[$index-1][0] ?? 666, $this->regras_sintatico['TIPOS'])
                 and !isset($this->ids[$data[$index][1]])) {
-                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', tentando atribuir valor em variável não declarada');
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', realizando operação com variável não declarada');
                 }
+
+                //fazer uma que verifique operadores entre dados de tipo diferente
+                /* if ($data[$index][0] == 'id' and !in_array($data[$index-1][0] ?? 666, $this->regras_sintatico['TIPOS'])
+                and !isset($this->ids[$data[$index][1]])) {
+                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', realizando operação com variável não declarada');
+                } */
             }
         }
 
@@ -101,7 +107,7 @@ class Sintatico
                 return $this->finaliza(true, 'Código válido');
             }
         } else {
-            return $this->finaliza(false, 'Erro sintático na linha '.$linhaerro.json_encode($this->pilha));
+            return $this->finaliza(false, 'Erro sintático na linha '.$linhaerro.' - '.json_encode($this->pilha));
         }
     }
 

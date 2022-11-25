@@ -39,6 +39,12 @@ $regras_sintatico = [
         [
             'num', 'OP', 'num'
         ],
+        [
+            'EXP', 'OP', 'num'
+        ],
+        [
+            'num', 'OP', 'EXP'
+        ],
         'num',
         [
             '(', 'EXP', ')'

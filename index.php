@@ -34,13 +34,27 @@
     <body>
 
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50rem;">
-            <h1>Titulo</h1>
+            <h1 style="text-align: center">Analizador sintático/semântico</h1>
+
+            <div style="height: 2rem; width: 100%; display: inline-block"></div>
+
+            <h3>Operações suportadas:</h3>
+            <ul>
+                <li>Declarações</li>
+                <li>Atribuições</li>
+                <li>Expressões</li>
+                <li>IFs</li>
+            </ul>
+
+            <div style="height: 2rem; width: 100%; display: inline-block"></div>
 
             <form action="/salvar.php" method="post">
-                <label for="code">Código</label>
+                <label for="code">Inserir Código em <strong>C</strong></label>
                 <textarea type="text" name="code" id="code"></textarea>
 
                 <input type="submit" value="Enviar">
+
+                <div style="height: 2rem; width: 100%; display: inline-block"></div>
 
                 <?php
                     include 'core.php';
