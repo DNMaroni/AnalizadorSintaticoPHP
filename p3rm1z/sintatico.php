@@ -69,12 +69,8 @@ class Sintatico
                 and !isset($this->ids[$data[$index][1]])) {
                     return $this->finaliza(false, 'Erro semântico na linha '.$linha.', realizando operação com variável não declarada');
                 }
-
-                //fazer uma que verifique operadores entre dados de tipo diferente
-                /* if ($data[$index][0] == 'id' and !in_array($data[$index-1][0] ?? 666, $this->regras_sintatico['TIPOS'])
-                and !isset($this->ids[$data[$index][1]])) {
-                    return $this->finaliza(false, 'Erro semântico na linha '.$linha.', realizando operação com variável não declarada');
-                } */
+                
+               
             }
         }
 
@@ -113,27 +109,18 @@ class Sintatico
 
     public function regraId($terminal)
     {
-        /* if ($terminal == 'COMANDO') {
-            var_dump($this->pilha);
-            exit;
-        } */
-        if ($terminal == 'EXP' and $this->characters_atuais['chars'][$this->characters_atuais['index']][0] == 'id' and isset($this->characters_atuais['chars'][$this->characters_atuais['index']+1][0])
-         and $this->characters_atuais['chars'][$this->characters_atuais['index']+1][0] == '=') {
-            return false;
-        }
-
-        return true;
+        return !($terminal == 'EXP' and $this->characters_atuais['chars'][$this->characters_atuais['index']][0] == 'id' and isset($this->characters_atuais['chars'][$this->characters_atuais['index']+1][0]) and $this->characters_atuais['chars'][$this->characters_atuais['index']+1][0] == '=');
     }
 
     public function validateAtri($terminal)
     {
-        if ($terminal == 'ATRI' and $this->pilha[count($this->pilha)-2] != 'TIPOS') {
-            return false;
-        }
-
-        return true;
+        return !($terminal == 'ATRI' and $this->pilha[count($this->pilha)-2] != 'TIPOS');
     }
 
+    public function validateExpIf($terminal, $chars){
+        return !($terminal == 'EXP' AND $this->pilha[count($this->pilha)-1] == 'if' AND !isset($chars['(']) AND !isset($chars[')']));
+    }
+    
     public function reduce($loop = false)
     {
         $flaglast = true;
@@ -177,9 +164,12 @@ class Sintatico
                     //percorre pilha de cima pra baixo e ve se existe regra a partir da direita das regras
                     $match = 0;
                     $size_regra_copy = count($regras[$i])-1;
+                    $arr_chars_matchs = [];
 
                     for ($p = count($this->pilha)-1; $p>=0; $p--) {
                         if ($this->pilha[$p] == $regras[$i][$size_regra_copy]) {
+                            $arr_chars_matchs[$regras[$i][$size_regra_copy]] = $regras[$i][$size_regra_copy];
+
                             $match++;
                             if ($size_regra_copy != 0) {
                                 $size_regra_copy--;
@@ -190,8 +180,6 @@ class Sintatico
                         break;
                     }
 
-                    //verificar aqui, não tá entrando e reduzindo
-                    //encontrou regra composta que pode ser reduzida
                     if (count($regras[$i]) == $match) {
                         //remove da pilha os chars que vao reduzir
 
@@ -200,7 +188,10 @@ class Sintatico
                         }
 
                         //adiciona o terminal que encontrou na redução
-                        $this->pilha[] = $terminal;
+                        if($this->validateExpIf($terminal, $arr_chars_matchs))
+                            $this->pilha[] = $terminal;
+
+        
                     }
                 }
             }
